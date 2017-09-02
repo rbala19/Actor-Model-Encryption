@@ -9,8 +9,17 @@ import java.util.List;
 /**
  * Created by rbalakrishnan on 8/4/17.
  */
+
+/**
+ * Contains tools for extracting batches from encryptRequests (Performed by BatchActor)
+ */
 public class BatchUtilities {
 
+
+	/**
+	 * Contains data to be encrypted in RowsToChange form, has methods to create batches based on user input
+	 * of how many batches to create
+	 */
 	public class EncryptRequest {
 
 		String table;
@@ -56,6 +65,9 @@ public class BatchUtilities {
 		}
 	}
 
+	/**
+	 * Represents one batch that is to be sent to a select actor.
+	 */
 	public class Batch {
 		SQLUtilities.RowsToChange batch;
 		String table;

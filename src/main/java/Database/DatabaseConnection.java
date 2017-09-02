@@ -5,6 +5,10 @@ import java.sql.*;
 /**
  * Created by rbalakrishnan on 8/3/17.
  */
+
+/**
+ * Represents a singular Database Connection
+ */
 public class DatabaseConnection {
 
 	Connection con;

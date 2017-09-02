@@ -16,10 +16,13 @@ import java.util.List;
 /**
  * Created by rbalakrishnan on 7/28/17.
  */
+
+/**
+ * Lowest level in hierarchy; Receives encrypted batch and performs update call to database.
+ */
 public class UpdateActor extends AbstractActor {
 
 	DatabaseConnection connection;
-	BatchUtilities.Batch encryptedBatch;
 	LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
 	public static Props props() {
@@ -27,11 +30,12 @@ public class UpdateActor extends AbstractActor {
 	}
 
 	public UpdateActor() {
-		this.encryptedBatch = null;
-
 		this.connection = Supervisor.getConnectionPool().extractConnection();
 	}
 
+	/**
+	 * Upon receiving an encrypted batch, makes update call, logs completion, closes connection, and terminates self
+	 */
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(BatchUtilities.Batch.class, batch -> {
@@ -45,6 +49,11 @@ public class UpdateActor extends AbstractActor {
 
 	}
 
+
+	/**
+	 * Updates Database
+	 * @param batch Encrypted batch received from select actor
+	 */
 	public void updateDatabase(BatchUtilities.Batch batch) {
 
 		connection.turnOffAutoCommit();
@@ -77,6 +86,13 @@ public class UpdateActor extends AbstractActor {
 		}
 	}
 
+	/**
+	 * Builds update call
+	 * @param table
+	 * @param columnNames
+	 * @param primaryKey
+	 * @return Update Query
+	 */
 	private String buildQueryFramework(String table, List<String> columnNames, String primaryKey) {
 
 
@@ -95,6 +111,9 @@ public class UpdateActor extends AbstractActor {
 		return updateQuery.toString();
 	}
 
+	/**
+	 * Increments Supervisor's finish count
+	 */
 	private void notifySupervisorOfTermination() {
 		Supervisor.incrementFinishedCount();
 	}

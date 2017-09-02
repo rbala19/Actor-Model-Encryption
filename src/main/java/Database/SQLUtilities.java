@@ -15,8 +15,17 @@ import java.util.stream.Collectors;
 /**
  * Created by rbalakrishnan on 7/27/17.
  */
+
+/**
+ * Encapsulation of data to be encrypted
+ */
 public class SQLUtilities {
 
+	/**
+	 * Converts database cursor to in memory list
+	 * @param rs DB cursor
+	 * @return RowsToChange
+	 */
 	public static RowsToChange generateListFromResultSet(ResultSet rs) {
 		SQLUtilities.RowsToChange result = new SQLUtilities().new RowsToChange();
 
@@ -54,6 +63,11 @@ public class SQLUtilities {
 
 	}
 
+	/**
+	 * Maps SQL datatype to java data types - used for detecting object type during runtime for encryption
+	 * @param SQLType
+	 * @return
+	 */
 	private static String mapSQLTypeToJavaType(String SQLType) {
 		switch(SQLType) {
 			case "varchar":
@@ -64,6 +78,13 @@ public class SQLUtilities {
 			return "null";
 	}
 
+	/**
+	 * Used to validate encryption
+	 * @param original
+	 * @param encrypted
+	 * @param encryptionFlag
+	 * @return true if encrypted version of original matches encrypted
+	 */
 	public static boolean checkEncryption(RowsToChange original, RowsToChange encrypted, boolean encryptionFlag) {
 		if (original.length() != encrypted.length()) {
 //			encrypted.toChange.removeAll(original.toChange);
@@ -89,6 +110,9 @@ public class SQLUtilities {
 		return true;
 	}
 
+	/**
+	 * Fundamental class encapsulating data the requires encryption
+	 */
 	public class RowsToChange implements Iterable<Row>{
 		private List<Row> toChange;
 
@@ -112,6 +136,11 @@ public class SQLUtilities {
 			return toChange.iterator();
 		}
 
+		/**
+		 * Special iterator that iterates based on batch size; See BatchUtilities for usage
+		 * @param iterateBy
+		 * @return RowsToChange iterator
+		 */
 		public Iterator<RowsToChange> iterator(int iterateBy) {
 			Iterator<RowsToChange> itr = new Iterator<RowsToChange>() {
 
@@ -148,7 +177,9 @@ public class SQLUtilities {
 
 	}
 
-
+	/**
+	 * A row in a RowsToChange
+	 */
 	public class Row implements Iterable<RowObject>{
 		ArrayList<RowObject> container;
 
@@ -220,6 +251,10 @@ public class SQLUtilities {
 
 	}
 
+	/**
+	 * A value in a Row; contains object type as a String in addition to the object itself
+	 */
+
 	public class RowObject {
 		Object o;
 		String type;
@@ -238,6 +273,12 @@ public class SQLUtilities {
 		}
 	}
 
+	/**
+	 * Utility method for finding primary key automatically; not used currently
+	 * @param connection
+	 * @param tableName
+	 * @return primary key
+	 */
 	public static String findPrimaryKey(DatabaseConnection connection, String tableName) {
 
 		String query = "SELECT  i.name AS IndexName, OBJECT_NAME(ic.OBJECT_ID) AS TableName, COL_NAME(ic.OBJECT_ID,ic.column_id) AS ColumnName " +

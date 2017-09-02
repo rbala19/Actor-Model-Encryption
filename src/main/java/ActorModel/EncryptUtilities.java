@@ -16,6 +16,10 @@ import java.math.BigInteger;
 /**
  * Created by rbalakrishnan on 7/31/17.
  */
+
+/**
+ * Contains methods to encrypt and decrypt data
+ */
 public class EncryptUtilities {
 
 //	static BasicTextEncryptor encryptor = new BasicTextEncryptor() ;
@@ -24,9 +28,10 @@ public class EncryptUtilities {
 	static Integer key = Integer.MAX_VALUE;
 
 
-
-
-
+	/**
+	 * Zero salt generator ensures that the same input string is encrypted the same way every time.
+	 * This helps with encryption validation.
+	 */
 	static {
 //		encryptor.setPassword("Nishanya");
 
@@ -41,6 +46,14 @@ public class EncryptUtilities {
 	}
 
 
+	/**
+	 * Uses object type to cast object and encrypt using respective algorithm
+	 * int: XOR encryption
+	 * String: 64 byte encryption
+	 * @param o
+	 * @param type
+	 * @return encrypted Object
+	 */
 	public static Object encrypt(Object o, String type) {
 		if (o == null) {
 			return null;
@@ -56,6 +69,12 @@ public class EncryptUtilities {
 		}
 	}
 
+	/**
+	 * Analogous to encrypt
+	 * @param o
+	 * @param type
+	 * @return decrypted Object
+	 */
 	public static Object decrypt(Object o, String type) {
 		if (o == null ) {
 			return null;

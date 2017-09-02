@@ -14,9 +14,15 @@ import java.util.List;
 /**
  * Created by rbalakrishnan on 7/28/17.
  */
+
+/**
+ * Second level of actor hierarchy; receives batches and outputs encrypted batches to UpdateActors
+ */
 public class SelectActor extends AbstractActor{
 
+	//Boundless queue of updateActors
 	List<ActorRef> updateActors;
+	//used for updateActor naming Scheme
 	int movingSize;
 
 	public static Props props() {
@@ -49,6 +55,11 @@ public class SelectActor extends AbstractActor{
 
 	}
 
+	/**
+	 *
+	 * @param batchToEncrypt Batch received from batch Actor
+	 * @return encrypted Batch
+	 */
 	private BatchUtilities.Batch encryptBatch(BatchUtilities.Batch batchToEncrypt) {
 		return batchToEncrypt.encryptBatch(batchToEncrypt.getRequest().getEncryptFlag());
 	}

@@ -23,9 +23,12 @@ public class ActorModelEncryptTest {
 
 	@BeforeClass
 	public static void setup() {
-		Supervisor.setup(50, "1433", "branch_test");
+		Supervisor.setup("QA", 50, "1433", "branch_test");
 	}
 
+	/**
+	 * Checks to make sure a single request can complete
+	 */
 	@Test
 	public void testRun() {
 
@@ -35,6 +38,9 @@ public class ActorModelEncryptTest {
 		assertTrue(success);
 	}
 
+	/**
+	 * Tests encryption accuracy for a single request
+	 */
 	@Test
 	public void testDatabaseEncryption() {
 		String[] toEncrypt = new String[]{"ccardexpyear", "companyfilingtype"};
@@ -60,6 +66,9 @@ public class ActorModelEncryptTest {
 		assertTrue(match);
 	}
 
+	/**
+	 * Tests adding multiple requests before running Supervisor
+	 */
 	@Test
 	public void runMultipleQueries() {
 		boolean encryptFlag = false;

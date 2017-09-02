@@ -16,17 +16,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by rbalakrishnan on 8/3/17.
  */
+
+/**
+ * Sets up, runs, and cleans up after actor model; Performs select calls
+ */
 public class Supervisor {
 
 	public static DatabaseConnectionPool pool;
+
+	//Incremented every time an update Actor completes the updateCall; this is a threadSafe data type
 	public static AtomicInteger finishedCount = new AtomicInteger(0);
 	public static ActorRef batchActor;
 	public static int branchingFactor;
 	public static List<BatchUtilities.EncryptRequest> queryQueue = new LinkedList<>();
+	//A connection used to perform the select call
 	public static DatabaseConnection addConnection;
 
-	private static void connect(String tcp, String dbName) {
-		pool = new DatabaseConnectionPool(tcp, dbName);
+	private static void connect(String database, String tcp, String dbName) {
+		pool = new DatabaseConnectionPool(database, tcp, dbName);
 		addConnection = pool.extractConnection();
 
 	}
@@ -38,16 +45,15 @@ public class Supervisor {
 	private static void setUpActorSystem(int branchFact) {
 		final ActorSystem system = ActorSystem.create("ActorEncrypt");
 		try {
-			//#create-actors
 			branchingFactor = branchFact;
 			batchActor = system.actorOf(BatchActor.props(branchingFactor), "batchActor");
 		} catch (Exception e) {}
 
 	}
 
-	public static void setup(int branchFact, String tcp, String dbName) {
+	public static void setup(String whichDatabase, int branchFact, String tcp, String dbName) {
 		if (!isConnected()) {
-			Supervisor.connect(tcp, dbName);
+			Supervisor.connect(whichDatabase, tcp, dbName);
 		}
 		if (!actorSetupCompleted()) {
 			setUpActorSystem(branchFact);
@@ -59,6 +65,13 @@ public class Supervisor {
 		return batchActor != null;
 	}
 
+	/**
+	 * Adds request to queue
+	 * @param encryptFlag
+	 * @param tableName
+	 * @param primaryKey
+	 * @param toEncryptColumnNames
+	 */
 	public static void addRequest (boolean encryptFlag, String tableName, String primaryKey, String... toEncryptColumnNames) {
 		String query = selectQueryBuilder(tableName, primaryKey, toEncryptColumnNames);
 		ResultSet rs = addConnection.executeQuery(query);
@@ -68,6 +81,10 @@ public class Supervisor {
 
 	}
 
+	/**
+	 * Runs all requests in queue
+	 * @return true if run successfully, false if encountered exception
+	 */
 	public static boolean run() {
 
 
@@ -79,6 +96,7 @@ public class Supervisor {
 
 			int queueSize = queryQueue.size();
 
+			//Waits for finished count to equal number of requests * number of select actors
 			while (true) {
 				if (finishedCount.intValue() == (branchingFactor * queueSize)) {
 					break;
@@ -117,6 +135,11 @@ public class Supervisor {
 		pool.closePool();
 	}
 
+	/**
+	 * Used for extracting the number of the end of a string; used for naming updateActors
+	 * @param line String to be parsed
+	 * @return number at end of string
+	 */
 	public static int getLastInt(String line)
 	{
 		int offset = line.length();

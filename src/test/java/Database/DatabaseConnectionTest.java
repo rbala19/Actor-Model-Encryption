@@ -18,7 +18,7 @@ public class DatabaseConnectionTest {
 
 	@Test
 	public void testDatabaseConnection() {
-		DatabaseConnectionPool pool = new DatabaseConnectionPool("1433", "branch_test");
+		DatabaseConnectionPool pool = new DatabaseConnectionPool("local","1433", "branch_test");
 		DatabaseConnection connection = pool.extractConnection();
 		ResultSet test = connection.executeQuery("Select top 10 * from companies");
 		boolean notEmpty = false;
